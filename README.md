@@ -54,3 +54,18 @@ carrySettings:
  debug: INFO
 
 ```
+
+# Permissions (when mobSettings.requirePermission is `true`)
+- `pickmeup.reload` => Allows to reload the plugin
+- `pickmeup.pickup.<entity_type>` => Allows to pickup a specific entity
+- `pickmeup.bypass.nostack` => Allows to pickup an entity with a passenger even if the config does not allow it.
+
+
+# Integrations
+The plugin supports protection with plugins via hooks or native.
+- WorldGuard (User requires interact permissions in region)
+- BentoBox (Only team members can pick up)
+- GriefPrevention
+- PlotSquared
+- RedProtect
+- Towny
