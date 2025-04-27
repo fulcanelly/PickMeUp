@@ -1,11 +1,8 @@
-import io.papermc.hangarpublishplugin.model.Platforms
-
 plugins {
     id("com.gradleup.shadow") version "8.3.3"
     java
     `maven-publish`
     alias(libs.plugins.hangar)
-    id("de.chojo.publishdata") version "1.4.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
@@ -71,30 +68,6 @@ java {
     }
 }
 
-publishData {
-    useEldoNexusRepos()
-    publishComponent("java")
-}
-
-publishing {
-    publications.create<MavenPublication>("maven") {
-        publishData.configurePublication(this)
-    }
-
-    repositories {
-        maven {
-            authentication {
-                credentials(PasswordCredentials::class) {
-                    username = System.getenv("NEXUS_USERNAME")
-                    password = System.getenv("NEXUS_PASSWORD")
-                }
-            }
-
-            name = "EldoNexus"
-            url = uri(publishData.getRepository())
-        }
-    }
-}
 
 tasks {
     compileJava {
@@ -147,7 +120,7 @@ tasks {
 }
 
 bukkit {
-    authors = listOf("RainbowDashLabs")
+    authors = listOf("fulcanelly")
     main = "de.eldoria.pickmeup.PickMeUp"
     website = "https://www.spigotmc.org/resources/88151/"
     apiVersion = "1.13"
@@ -157,23 +130,6 @@ bukkit {
             description = "Main command of pick me up"
             usage = "Trust the tab completion"
             aliases = listOf("pmu")
-        }
-    }
-}
-
-hangarPublish {
-    publications.register("plugin") {
-        version.set(publishData.getVersion())
-        id = "PickMeUp"
-        channel = System.getenv("HANGAR_CHANNEL")
-
-        apiKey = System.getenv("HANGAR_KEY")
-
-        platforms {
-            register(Platforms.PAPER) {
-                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                platformVersions.set(listOf("1.16.5-1.21"))
-            }
         }
     }
 }
