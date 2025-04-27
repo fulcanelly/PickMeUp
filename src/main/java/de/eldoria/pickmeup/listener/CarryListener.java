@@ -11,6 +11,7 @@ import de.eldoria.pickmeup.util.Permissions;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -72,7 +73,12 @@ public class CarryListener implements Listener {
 
         Player player = event.getPlayer();
         if (player.getEquipment().getItemInMainHand().getType() != Material.AIR) return;
-        if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked().getType())) return;
+
+
+        if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked())) {
+            return;
+        }
+        
         // TODO: Add player toggle
         if (!player.getPassengers().isEmpty()) return;
         if (!player.isSneaking()) return;
@@ -88,6 +94,7 @@ public class CarryListener implements Listener {
         player.addPassenger(event.getRightClicked());
         event.setCancelled(true);
     }
+
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
