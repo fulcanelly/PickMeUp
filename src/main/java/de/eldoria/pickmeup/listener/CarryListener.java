@@ -11,6 +11,7 @@ import de.eldoria.pickmeup.util.Permissions;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -72,6 +73,13 @@ public class CarryListener implements Listener {
 
         Player player = event.getPlayer();
         if (player.getEquipment().getItemInMainHand().getType() != Material.AIR) return;
+
+        var targetEntity = event.getRightClicked();
+
+        boolean isMonster = targetEntity instanceof Monster;
+
+        boolean isPlayer = targetEntity instanceof Player;
+
         if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked().getType())) return;
         // TODO: Add player toggle
         if (!player.getPassengers().isEmpty()) return;
