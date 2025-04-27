@@ -20,6 +20,11 @@ import java.util.Map;
 @SerializableAs("pickMeUpMobSettings")
 public class MobSettings implements ConfigurationSerializable {
     private static final transient List<EntityType> DEFAULT_MOBS;
+    private static final transient List<EntityType> DEFAULT_BLACKLISTED_MOBS 
+        = List.of(
+            EntityType.ENDER_DRAGON,
+            EntityType.WITHER
+        );
 
     static {
         DEFAULT_MOBS = new ArrayList<EntityType>() {{
@@ -33,18 +38,19 @@ public class MobSettings implements ConfigurationSerializable {
         }};
     }
 
-    private boolean allowAllPeacefulMobs;
+    private boolean allowAllPeacefulMobs = true;
     private boolean allowAllHostileMobs;
-    private boolean allowPlayers;
+    private boolean allowPlayers = true;
 
     private List<EntityType> allowedMobs = DEFAULT_MOBS;
     private List<EntityType> blackListedMobs = new ArrayList<>();
+
     private boolean requirePermission;
 
     public MobSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         allowedMobs = map.getValueOrDefault("allowedMobs", DEFAULT_MOBS, EntityType.class);
-        blackListedMobs = map.getValueOrDefault("blackListedMobs", blackListedMobs, EntityType.class);
+        blackListedMobs = map.getValueOrDefault("blackListedMobs", DEFAULT_BLACKLISTED_MOBS, EntityType.class);
 
         requirePermission = map.getValueOrDefault("requirePermission", requirePermission);
         

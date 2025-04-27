@@ -75,7 +75,10 @@ public class CarryListener implements Listener {
         if (player.getEquipment().getItemInMainHand().getType() != Material.AIR) return;
 
 
-        if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked())) return;
+        if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked())) {
+            return;
+        }
+        
         // TODO: Add player toggle
         if (!player.getPassengers().isEmpty()) return;
         if (!player.isSneaking()) return;
