@@ -5,7 +5,11 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.pickmeup.util.Permissions;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Monster;
+
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,15 +33,24 @@ public class MobSettings implements ConfigurationSerializable {
         }};
     }
 
+    private boolean allowAllPeacefulMobs;
+    private boolean allowAllHostileMobs;
+    private boolean allowPlayers;
+
     private List<EntityType> allowedMobs = DEFAULT_MOBS;
+    private List<EntityType> blackListedMobs = new ArrayList<>();
     private boolean requirePermission;
-    private boolean blacklist;
 
     public MobSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         allowedMobs = map.getValueOrDefault("allowedMobs", DEFAULT_MOBS, EntityType.class);
+        blackListedMobs = map.getValueOrDefault("blackListedMobs", blackListedMobs, EntityType.class);
+
         requirePermission = map.getValueOrDefault("requirePermission", requirePermission);
-        blacklist = map.getValueOrDefault("blacklist", blacklist);
+        
+        allowAllPeacefulMobs = map.getValueOrDefault("allowAllPeacefulMobs", allowAllPeacefulMobs);
+        allowAllHostileMobs = map.getValueOrDefault("allowAllHostileMobs", allowAllHostileMobs);
+        allowPlayers = map.getValueOrDefault("allowPlayers", allowPlayers);
     }
 
     public MobSettings() {
@@ -48,24 +61,56 @@ public class MobSettings implements ConfigurationSerializable {
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .addEnum("allowedMobs", allowedMobs)
+                .addEnum("blackListedMobs", blackListedMobs)
+                
                 .add("requirePermission", requirePermission)
-                .add("blacklist", blacklist)
+                
+                .add("allowAllPeacefulMobs", allowAllPeacefulMobs)      
+                .add("allowAllHostileMobs", allowAllHostileMobs)
+                .add("allowPlayers", allowPlayers)
                 .build();
     }
 
-    public boolean canBePickedUp(Player player, EntityType type) {
-        boolean allowed;
-        if (blacklist) {
-            allowed = !allowedMobs.contains(type);
-        } else {
-            allowed = allowedMobs.contains(type);
-        }
-        if (!allowed) {
+
+    public boolean canBePickedUp(Player player, Entity entity) {
+        var type = entity.getType();
+
+        if (requirePermission && !player.hasPermission(Permissions.getPickUpPermission(type))) {
             return false;
         }
-        if (requirePermission) {
-            allowed = player.hasPermission(Permissions.getPickUpPermission(type));
+
+        if (blackListedMobs.contains(type)) {
+            return false;
         }
-        return allowed;
+
+        if (allowedMobs.contains(type)) {
+            return true;
+        }
+           
+        return isAllowedByCategory(entity);
     }
+
+    private boolean isAllowedByCategory(Entity targetEntity) {
+
+        boolean isPlayer = targetEntity instanceof Player;
+
+        if (isPlayer && allowPlayers) {
+            return true;
+        }
+
+        boolean isMob = targetEntity instanceof Mob;
+        boolean isMonster = targetEntity instanceof Monster;
+
+        if (isMob && !isMonster && allowAllPeacefulMobs) {
+            return true;
+        }
+
+        if (isMonster && allowAllHostileMobs) {
+            return true;
+        }
+
+        return false; 
+    }
+
+
 }
