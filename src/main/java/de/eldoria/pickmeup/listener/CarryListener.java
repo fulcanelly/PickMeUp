@@ -74,13 +74,8 @@ public class CarryListener implements Listener {
         Player player = event.getPlayer();
         if (player.getEquipment().getItemInMainHand().getType() != Material.AIR) return;
 
-        var targetEntity = event.getRightClicked();
 
-        boolean isMonster = targetEntity instanceof Monster;
-
-        boolean isPlayer = targetEntity instanceof Player;
-
-        if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked().getType())) return;
+        if (!config.mobSettings().canBePickedUp(event.getPlayer(), event.getRightClicked())) return;
         // TODO: Add player toggle
         if (!player.getPassengers().isEmpty()) return;
         if (!player.isSneaking()) return;
@@ -96,6 +91,7 @@ public class CarryListener implements Listener {
         player.addPassenger(event.getRightClicked());
         event.setCancelled(true);
     }
+
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
